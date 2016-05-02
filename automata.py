@@ -137,7 +137,7 @@ def iterate(matrix, rule):
         rule: function object, which takes three params (matrix, agent, neighborhood) and returns new state and coords
         of the agent in tuple (state, x, y) form
     Returns:
-        two-dimensional numpy array of same shape as matrix and
+        two-dimensional numpy array of same shape as matrix
     """
 
     new_matrix = numpy.zeros(matrix.shape, dtype=matrix.dtype)
@@ -152,7 +152,7 @@ def iterate(matrix, rule):
     return new_matrix
 
 
-def simulate(start=None, lanes=1, length=100, steps=10, rule=rule_180, monitor=None):
+def simulate(start=None, lanes=1, length=100, steps=10, rule=rule_180, monitor=None, changer=None):
     """
     Run specified number of steps by applying rule to whole matrix
 
@@ -163,8 +163,10 @@ def simulate(start=None, lanes=1, length=100, steps=10, rule=rule_180, monitor=N
         steps: number of iterations of simulation
         rule: function object, which takes three params (matrix, agent, neighborhood) and returns new state and coords
         of the agent in tuple (state, x, y) form
-        monitor: monitor object with func observe(new_matrix, old_matrix).
+        monitor: monitor object with func observe(old_matrix, new_matrix).
         It cannot change the matrices, otherwise consequences will be awful
+        changer: object with func change(old_matrix), this object CAN change the matrix and func change will be called
+        before iterate
     Returns:
         final state of the system in the matrix form with the same dimensions as original start matrix, or (lanes, length)
     """
@@ -174,8 +176,10 @@ def simulate(start=None, lanes=1, length=100, steps=10, rule=rule_180, monitor=N
 
     old_matrix = start
     for step in range(steps):
+        if changer is not None:
+            changer.change(old_matrix)
         new_matrix = iterate(old_matrix, rule)
         if monitor is not None:
-            monitor.observe(new_matrix, old_matrix)
+            monitor.observe(old_matrix, new_matrix)
         old_matrix = new_matrix
     return old_matrix
