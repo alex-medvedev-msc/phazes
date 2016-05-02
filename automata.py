@@ -115,6 +115,8 @@ def find_agent(lane, reversed=False):
     Args:
         lane: one-dimensional numpy array
         reversed: if True, then search will start from end of lane
+    Returns:
+        (element, index) tuple or None if there is no nonzero element in array
     """
     if reversed:
         indices = numpy.nonzero(lane[::-1])
